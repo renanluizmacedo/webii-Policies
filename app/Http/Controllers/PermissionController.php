@@ -10,7 +10,7 @@ class PermissionController extends Controller {
     public static function loadPermissions($user_type) { 
         
         $sess = Array();    
-        $perm = Permission::where('type_id', $user_type)->get();
+        $perm = Permission::where('role_id', $user_type)->get();
 
         foreach($perm as $item) {
             $sess[$item->regra] = (boolean) $item->permissao;

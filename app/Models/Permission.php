@@ -8,4 +8,14 @@ use Illuminate\Database\Eloquent\Model;
 class Permission extends Model
 {
     use HasFactory;
+    protected $fillable = ['resource_id', 'role_id'];
+
+
+    public function resource() {
+        return $this->belongsTo('\App\Models\Resource');
+    }
+
+    public function role() {
+        return $this->belongsTo('\App\Models\Role');
+    }
 }

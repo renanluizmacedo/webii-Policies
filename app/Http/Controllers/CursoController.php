@@ -2,157 +2,81 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Curso;
-use App\Models\Eixo;
-use App\Facades\UserPermissions;
+use Illuminate\Http\Request;
 
-class CursoController extends Controller
-{
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+class CursoController extends Controller {
 
-    public function index()
-    {
-        if(!UserPermissions::isAuthorized('cursos.index')) {
-            return response()->view('templates.restrito');
-        }
-        $data = Curso::with(['eixo' => function ($q) {
-            $q->withTrashed();
-        }])->orderBy('nome')->get();
-
-        return view('cursos.index', compact(['data']));
+    public function __construct() {
+        $this->authorizeResource(Curso::class, 'curso');
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        if(!UserPermissions::isAuthorized('cursos.create')) {
-            return response()->view('templates.restrito');
-        }
-        $eixos = Eixo::orderBy('nome')->get();
-        return view('cursos.create', compact(['eixos']));
+    public function index() {
+
+        // $this->authorize('viewAny',  Curso::class);
+        $cursos = Curso::all();
+        return view('cursos.index', compact('cursos'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        Curso::create([
-            'nome' => mb_strtoupper($request->nome, 'UTF-8'),
-            'sigla' => mb_strtoupper($request->sigla, 'UTF-8'),
-            'tempo' => $request->tempo,
-            'eixo_id' => $request->eixo,
+    public function create() {
 
-        ]);
+        // $this->authorize('create',  Curso::class);
+        return view('cursos.create');
+    }
+
+    public function store(Request $request) {
+        // $this->authorize('create',  Curso::class);
+
+        $obj = new Curso();
+        $obj->nome = mb_strtoupper($request->nome, 'UTF-8');   
+        $obj->save();
 
         return redirect()->route('cursos.index');
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
-    }
+    public function show(Curso $curso) {
+        
+        // $this->authorize('view', $curso);
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        $eixos = Eixo::orderBy('nome')->get();
-        $data = Curso::find($id);
-
-        if (isset($data)) {
-            return view('cursos.edit', compact(['data', 'eixos']));
-        } else {
-            $msg = "Curso";
-            $link = "curso.index";
-            return view('erros.id', compact(['msg', 'link']));
+        if(isset($curso)) {
+            return view('cursos.show', compact('curso'));
         }
+
+        return "<h1>Curso não Encontrado!</h1>";        
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
+    public function edit(Curso $curso) {
+        
+        // $this->authorize('update', $curso);
 
-        $rules = [
-            'nome' => 'required|max:50|min:10',
-            'sigla' => 'required|max:8,|min:2',
-            'tempo' => 'required|max:2|min:1',
-            'eixo' => 'required',
+        if(isset($curso)) {
+            return view('cursos.edit', compact('curso'));
+        }
 
-        ];
-        $msgs = [
-            "required" => "O preenchimento do campo [:attribute] é obrigatório!",
-            "max" => "O campo [:attribute] possui tamanho máximo de [:max] caracteres!",
-            "min" => "O campo [:attribute] possui tamanho mínimo de [:min] caracteres!",
-        ];
+        return "<h1>Curso não Encontrado!</h1>";        
+    }
 
-        $request->validate($rules, $msgs);
+    public function update(Request $request, Curso $curso) {
+        // $this->authorize('update', $curso);
 
-        $eixo = Eixo::find($request->eixo);
-        $obj = Curso::find($id);
-        if (isset($eixo) && isset($obj)) {
-            $obj->nome = mb_strtoupper($request->nome, 'UTF-8');
-            $obj->sigla = mb_strtoupper($request->sigla, 'UTF-8');
-            $obj->tempo = $request->tempo;
-            $obj->eixo()->associate($eixo);
-            $obj->save();
+        if(isset($curso)) {
+            $curso->nome = mb_strtoupper($request->nome, 'UTF-8');   
+            $curso->save();
             return redirect()->route('cursos.index');
         }
 
-        $msg = "Curso ou Eixo/Área";
-        $link = "cursos.index";
-        return view('erros.id', compact(['msg', 'link']));
+        return "<h1>Curso não Encontrado!</h1>";
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        if(!UserPermissions::isAuthorized('disciplinas.destroy')) {
-            return response()->view('templates.restrito');
-        }
-        $obj = Curso::find($id);
+    public function destroy(Curso $curso) {
+        
+        // $this->authorize('delete', $curso);
 
-        if (isset($obj)) {
-            $obj->delete();
-        } else {
-            $msg = "Curso";
-            $link = "cursos.index";
-            return view('erros.id', compact(['msg', 'link']));
+        if(isset($curso)) {
+            $curso->delete();
+            return redirect()->route('cursos.index');
         }
 
-        return redirect()->route('cursos.index');
+        return "<h1>Curso não Encontrado!</h1>";
     }
 }

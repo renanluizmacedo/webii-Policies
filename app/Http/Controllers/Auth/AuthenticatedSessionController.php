@@ -35,7 +35,7 @@ class AuthenticatedSessionController extends Controller
         $request->session()->regenerate();
 
         // Carregando as Permissões do Usuário / Sessão
-        UserPermissions::loadPermissions(Auth::user()->type_id);
+        UserPermissions::loadPermissions(Auth::user()->role_id);
 
         return redirect()->intended(RouteServiceProvider::HOME);
     }

@@ -10,7 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
-use App\Models\Type;
+use App\Models\Role;
 use App\Facades\UserPermissions;
 
 class RegisteredUserController extends Controller
@@ -20,10 +20,11 @@ class RegisteredUserController extends Controller
      *
      * @return \Illuminate\View\View
      */
-    public function create() {
+    public function create()
+    {
 
-        $types = Type::orderBy('nome')->get();
-        return view('auth.register', compact('types'));
+        $roles = Role::orderBy('name')->get();
+        return view('auth.register', compact('roles'));
     }
 
     /**
@@ -34,27 +35,33 @@ class RegisteredUserController extends Controller
      *
      * @throws \Illuminate\Validation\ValidationException
      */
-    public function store(Request $request) {
+    public function store(Request $request)
+    {
 
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'role_id' => ['required'],
+
         ]);
 
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'type_id' => $request->type_id,        
-            'password' => Hash::make($request->password),
-        ]);
+
+        $user = new User;
+
+        $user->name = $request->name;
+        $user->email = $request->email;
+        $user->password = Hash::make($request->password);
+        $user->role_id = $request->role_id;
+
+        $user->save();
 
         event(new Registered($user));
 
         Auth::login($user);
 
         // Carregando as Permissões do Usuário / Sessão
-        UserPermissions::loadPermissions(Auth::user()->type_id);
+        UserPermissions::loadPermissions(Auth::user()->role_id);
 
         return redirect(RouteServiceProvider::HOME);
     }
