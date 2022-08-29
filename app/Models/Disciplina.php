@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Disciplina extends Model
 {
 
-    protected $fillable = ['nome', 'sigla', 'tempo', 'eixo_id'];
+    protected $fillable = ['nome', 'carga','curso_id'];
 
     use HasFactory;
     use SoftDeletes;
@@ -18,16 +18,6 @@ class Disciplina extends Model
     {
         return $this->belongsTo('\App\Models\Curso');
     }
-    public function area()
-    {
-        return $this->belongsTo('\App\Models\Area');
-    }
-    public function professor()
-    {
-        return $this->belongsTo('\App\Models\Professor');
-    }
-    public function aluno()
-    {
-        return $this->hasMany('\App\Models\Aluno');
-    }
+
+
 }

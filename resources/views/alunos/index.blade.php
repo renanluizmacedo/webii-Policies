@@ -1,7 +1,7 @@
 <!-- Herda o layout padrão definido no template "main" -->
-@extends('templates.middleware', ['titulo' => "alunos", 'rota' => "alunos.create"])
+@extends('templates.middleware', ['titulo' => "ALUNOS", 'rota' => "alunos.create"])
 <!-- Preenche o conteúdo da seção "titulo" -->
-@section('titulo') alunos @endsection
+@section('titulo') ALUNOS @endsection
 <!-- Preenche o conteúdo da seção "conteudo" -->
 @section('conteudo')
     <div class="row">
@@ -11,6 +11,7 @@
                 <thead>
                 <tr>
                     <th scope="col">Nome</th>
+                    <th scope="col">Curso</th>
                     <th scope="col">Ações</th>
                 </tr>
                 </thead>
@@ -18,6 +19,7 @@
                     @foreach ($alunos as $item)
                         <tr>
                             <td>{{ $item->nome }}</td>
+                            <td>{{ $item->curso->nome }}</td>
                             <td>
                                 @can('update', $item)
                                     <a href= "{{ route('alunos.edit', $item) }}" class="btn btn-success">

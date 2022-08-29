@@ -31,8 +31,6 @@ Route::resource('/alunos', '\App\Http\Controllers\AlunoController')->middleware(
 Route::resource('/matriculas', '\App\Http\Controllers\MatriculaController')->middleware(['auth']);
 Route::resource('/docencias', '\App\Http\Controllers\DocenciaController')->middleware(['auth']);
 
-Route::get('/testfacade', function () {
-    return UserPermissions::test();
-});
+
 
 require __DIR__ . '/auth.php';

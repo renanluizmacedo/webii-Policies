@@ -15,17 +15,20 @@ class AlunoController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-
+    public function __construct()
+    {
+        $this->authorizeResource(Aluno::class, 'aluno');
+    }
     public function index()
     {
         if (!UserPermissions::isAuthorized('alunos.index')) {
             return response()->view('templates.restrito');
         }
-        $data = Aluno::with(['curso' => function ($q) {
+        $alunos = Aluno::with(['curso' => function ($q) {
             $q->withTrashed();
         }])->orderBy('nome')->get();
 
-        return view('alunos.index', compact(['data']));
+        return view('alunos.index', compact(['alunos']));
     }
 
     /**
@@ -107,6 +110,7 @@ class AlunoController extends Controller
             return response()->view('templates.restrito');
         }
         $cursos = Curso::orderBy('nome')->get();
+
         $data = Aluno::with(['curso' => function ($q) {
             $q->withTrashed();
         }])->find($id);

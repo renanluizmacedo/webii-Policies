@@ -24,16 +24,8 @@ class UserPermissions
 
     public static function isAuthorized($rule)
     {
-
-
         $permissions = session('user_permissions');
 
-
         return $permissions[$rule];
-    }
-
-    public static function test()
-    {
-        return "<h1>UserPermissionsFacade - Running!!</h1>";
     }
 }

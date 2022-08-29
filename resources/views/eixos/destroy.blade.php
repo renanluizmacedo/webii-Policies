@@ -1,7 +1,7 @@
 <!-- Herda o layout padrão definido no template "main" -->
 @extends('templates.middleware', ['titulo' => "Remover Curso"])
 <!-- Preenche o conteúdo da seção "titulo" -->
-@section('titulo') CURSOS @endsection
+@section('titulo') EIXOS @endsection
 <!-- Preenche o conteúdo da seção "conteudo" -->
 @section('conteudo')
 

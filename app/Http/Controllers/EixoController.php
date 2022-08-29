@@ -9,15 +9,21 @@ use App\Models\Eixo;
 
 class EixoController extends Controller
 {
-
+    public function __construct()
+    {
+        $this->authorizeResource(Eixo::class, 'eixo');
+    }
     public function index()
     {
+        $this->authorize('viewAny',  Eixo::class);
+
         if(!UserPermissions::isAuthorized('eixos.index')) {
             return response()->view('templates.restrito');
         }
 
-        $data = Eixo::orderBy('nome')->get();
-        return view('eixos.index', compact(['data']));
+        $eixos = Eixo::orderBy('nome')->get();
+        
+        return view('eixos.index', compact(['eixos']));
     }
 
     public function create()

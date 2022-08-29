@@ -9,39 +9,45 @@ use Illuminate\Auth\Access\HandlesAuthorization;
 use App\Facades\UserPermissions;
 use Illuminate\Auth\Access\Gate;
 
-class CursoPolicy {
-    
+class CursoPolicy
+{
+
     use HandlesAuthorization;
 
-    public function viewAny(User $user) {
+    public function viewAny(User $user)
+    {
         return UserPermissions::isAuthorized('cursos.index');
     }
 
-    public function view(User $user, Curso $curso) {
+    public function view(User $user, Curso $curso)
+    {
 
         return UserPermissions::isAuthorized('cursos.show');
     }
 
-    public function create(User $user) {
+    public function create(User $user)
+    {
 
         return UserPermissions::isAuthorized('cursos.create');
     }
 
-    public function update(User $user, Curso $curso) {
+    public function update(User $user, Curso $curso)
+    {
 
         return UserPermissions::isAuthorized('cursos.edit');
     }
 
-    public function delete(User $user, Curso $curso) {
+    public function delete(User $user, Curso $curso)
+    {
 
         return UserPermissions::isAuthorized('cursos.destroy');
     }
 
-    public function restore(User $user, Curso $curso) {
-        
+    public function restore(User $user, Curso $curso)
+    {
     }
 
-    public function forceDelete(User $user, Curso $curso) {
-        
+    public function forceDelete(User $user, Curso $curso)
+    {
     }
 }

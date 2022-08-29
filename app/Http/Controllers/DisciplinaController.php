@@ -20,9 +20,8 @@ class DisciplinaController extends Controller
             return response()->view('templates.restrito');
         }
 
-        $data = Disciplina::with(['curso'])
-            ->orderBy('nome')->get();
-        // return json_encode($data);
+        $data = Disciplina::with(['curso'])->get();
+
         return view('disciplinas.index', compact(['data']));
     }
 

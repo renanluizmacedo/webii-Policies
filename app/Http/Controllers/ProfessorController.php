@@ -11,18 +11,22 @@ use App\Models\Docencia;
 
 class ProfessorController extends Controller
 {
-
+    public function __construct()
+    {
+        $this->authorizeResource(Professor::class, 'professor');
+    }
     public function index()
     {
 
         if(!UserPermissions::isAuthorized('professores.index')) {
             return response()->view('templates.restrito');
         }
-        $data = Professor::with(['eixo' => function ($q) {
+
+        $professors = Professor::with(['eixo' => function ($q) {
             $q->withTrashed();
         }])->orderBy('nome')->get();
 
-        return view('professores.index', compact(['data']));
+        return view('professores.index', compact(['professors']));
     }
 
     public function create()

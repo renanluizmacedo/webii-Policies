@@ -1,20 +1,19 @@
-@extends('templates.middleware', ['titulo' => "Novo Aluno"])
+@extends('templates.middleware', ['titulo' => "Alterar Disciplina"])
+
 <!-- Preenche o conteúdo da seção "titulo" -->
-@section('titulo') ALUNOS @endsection
+@section('titulo') Disciplina @endsection
 @section('conteudo')
 
-<form action="{{ route('alunos.store') }}" method="POST">
+<form action="{{ route('disciplinas.update', $data->id) }}" method="POST">
     @csrf
-
+    @method('PUT')
     <div class="row">
-
         <div class="container my-3">
             <div class="row">
-
                 <div class="col">
                     <div class="form-floating mb-3">
-                        <input type="text" class="form-control @if($errors->has('nome')) is-invalid @endif" name="nome" placeholder="Nome" value="{{old('nome')}}" />
-                        <label for="nome">Nome do Aluno</label>
+                        <input type="text" class="form-control @if($errors->has('nome')) is-invalid @endif" name="nome" placeholder="Nome" value="{{$data->nome}}" />
+                        <label for="nome">Nome da Disciplina</label>
                         @if($errors->has('nome'))
                         <div class='invalid-feedback'>
                             {{ $errors->first('nome') }}
@@ -29,7 +28,7 @@
                         <span class="input-group-text bg-dark text-white">Curso</span>
                         <select name="curso" class="form-select @if($errors->has('curso')) is-invalid @endif">
                             @foreach ($cursos as $item)
-                            <option value="{{$item->id}}" @if($item->id == old('curso')) selected="true" @endif>
+                            <option value="{{$item->id}}" @if($item->id == $data->curso_id) selected="true" @endif>
                                 {{ $item->nome }}
                             </option>
                             @endforeach
@@ -44,7 +43,20 @@
             </div>
             <div class="row">
                 <div class="col">
-                    <a href="{{route('alunos.index')}}" class="btn btn-dark btn-block align-content-center">
+                    <div class="form-floating mb-3">
+                        <input type="number" min="1" max="4" class="form-control @if($errors->has('carga')) is-invalid @endif" name="carga" placeholder="Carga Horária" value="{{$data->carga}}" />
+                        <label for="carga">Carga Horária (nr. aulas)</label>
+                        @if($errors->has('carga'))
+                        <div class='invalid-feedback'>
+                            {{ $errors->first('carga') }}
+                        </div>
+                        @endif
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <a href="{{route('disciplinas.index')}}" class="btn btn-dark btn-block align-content-center">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-arrow-left-square-fill" viewBox="0 0 16 16">
                             <path d="M16 14a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12zm-4.5-6.5H5.707l2.147-2.146a.5.5 0 1 0-.708-.708l-3 3a.5.5 0 0 0 0 .708l3 3a.5.5 0 0 0 .708-.708L5.707 8.5H11.5a.5.5 0 0 0 0-1z" />
                         </svg>
