@@ -1,6 +1,5 @@
-@extends('templates.middleware', ['titulo' => "Novo professor"])
-<!-- Preenche o conteúdo da seção "titulo" -->
-@section('titulo') PROFESSORES @endsection
+@extends('templates.middleware', ['titulo' => "Novo Professor"])
+
 @section('conteudo')
 
 <form action="{{ route('professores.store') }}" method="POST">
@@ -10,6 +9,23 @@
 
         <div class="container my-3">
             <div class="row">
+                <div class="col mb-3">
+                    <div class="form-check form-check-inline @if($errors->has('radio')) is-invalid @endif p-0 m-0 ">
+                        <input class="btn-check" type="radio" name="radio" id="ativo" value="1">
+                        <label class="btn btn-outline-success" for="ativo">ATIVO</label>
+                    </div>
+                    <div class="form-check form-check-inline @if($errors->has('radio')) is-invalid @endif ">
+                        <input class="btn-check" type="radio" name="radio" id="inativo" value="0">
+                        <label class="btn btn-outline-danger" for="inativo">INATIVO</label>
+                    </div>
+                    @if($errors->has('radio'))
+                    <div class='invalid-feedback'>
+                        {{ $errors->first('radio') }}
+                    </div>
+                    @endif
+                </div>
+            </div>
+            <div class="row">
 
                 <div class="col">
                     <div class="form-floating mb-3">
@@ -18,6 +34,32 @@
                         @if($errors->has('nome'))
                         <div class='invalid-feedback'>
                             {{ $errors->first('nome') }}
+                        </div>
+                        @endif
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <div class="form-floating mb-3">
+                        <input type="email" class="form-control @if($errors->has('email')) is-invalid @endif" name="email" placeholder="E-mail" value="{{old('email')}}" />
+                        <label for="email">E-mail do Professor</label>
+                        @if($errors->has('email'))
+                        <div class='invalid-feedback'>
+                            {{ $errors->first('email') }}
+                        </div>
+                        @endif
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <div class="form-floating mb-3">
+                        <input type="number" class="form-control @if($errors->has('siape')) is-invalid @endif" name="siape" placeholder="SIAPE" value="{{old('siape')}}" />
+                        <label for="nome">SIAPE do Professor</label>
+                        @if($errors->has('siape'))
+                        <div class='invalid-feedback'>
+                            {{ $errors->first('siape') }}
                         </div>
                         @endif
                     </div>

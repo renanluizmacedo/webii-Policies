@@ -19,7 +19,7 @@
                     @foreach ($alunos as $item)
                         <tr>
                             <td>{{ $item->nome }}</td>
-                            <td>{{ $item->curso->nome }}</td>
+                            <td>{{ $item->curso->nome}}</td>
                             <td>
                                 @can('update', $item)
                                     <a href= "{{ route('alunos.edit', $item) }}" class="btn btn-success">

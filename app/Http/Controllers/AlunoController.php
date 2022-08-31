@@ -2,33 +2,29 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Curso;
 use App\Models\Aluno;
-use App\Facades\UserPermissions;
-
+use App\Models\Curso;
 use Illuminate\Http\Request;
 
 class AlunoController extends Controller
 {
+    public function __construct()
+    {
+        $this->authorizeResource(Aluno::class, 'aluno');
+    }
+
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function __construct()
-    {
-        $this->authorizeResource(Aluno::class, 'aluno');
-    }
     public function index()
     {
-        if (!UserPermissions::isAuthorized('alunos.index')) {
-            return response()->view('templates.restrito');
-        }
-        $alunos = Aluno::with(['curso' => function ($q) {
-            $q->withTrashed();
-        }])->orderBy('nome')->get();
+        $this->authorize('viewAny',  Aluno::class);
 
-        return view('alunos.index', compact(['alunos']));
+        $alunos = Aluno::with(['curso'])->get();
+
+        return view('alunos.index', compact('alunos'));
     }
 
     /**
@@ -38,10 +34,10 @@ class AlunoController extends Controller
      */
     public function create()
     {
-        if (!UserPermissions::isAuthorized('alunos.create')) {
-            abort(403);
-        }
+        $this->authorize('create',  Aluno::class);
+
         $cursos = Curso::orderBy('nome')->get();
+
         return view('alunos.create', compact(['cursos']));
     }
 
@@ -71,6 +67,8 @@ class AlunoController extends Controller
     }
     public function store(Request $request)
     {
+        $this->authorize('create',  Aluno::class);
+
         Self::validation($request);
 
         $curso = Curso::find($request->curso);
@@ -90,33 +88,42 @@ class AlunoController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param  \App\Models\Aluno  $aluno
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(Aluno $aluno)
     {
-        //
+        $this->authorize('view', $aluno);
+
+        if (isset($aluno)) {
+
+            $curso = Curso::find($aluno->curso->id);
+
+            if (isset($curso)) {
+                $aluno->curso()->associate($curso);
+                return view('alunos.show', compact('aluno'));
+            } else {
+                return redirect()->route('alunos.index');
+            }
+        }
+
+        return "<h1>Aluno não Encontrado!</h1>";
     }
 
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param  \App\Models\Aluno  $aluno
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(Aluno $aluno)
     {
-        if (!UserPermissions::isAuthorized('alunos.edit')) {
-            return response()->view('templates.restrito');
-        }
-        $cursos = Curso::orderBy('nome')->get();
 
-        $data = Aluno::with(['curso' => function ($q) {
-            $q->withTrashed();
-        }])->find($id);
+        $this->authorize('update', $aluno);
 
-        if (isset($data)) {
-            return view('alunos.edit', compact(['data', 'cursos']));
+        if (isset($aluno)) {
+            $cursos = Curso::all();
+            return view('alunos.edit', compact(['aluno', 'cursos']));
         }
     }
 
@@ -124,47 +131,39 @@ class AlunoController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
+     * @param  \App\Models\Aluno  $aluno
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, Aluno $aluno)
     {
-        $rules = [
-            'nome' => 'required|max:100|min:10',
-            'curso' => 'required',
+        Self::validation($request);
 
-        ];
-        $msgs = [
-            "required" => "O preenchimento do campo [:attribute] é obrigatório!",
-            "max" => "O campo [:attribute] possui tamanho máximo de [:max] caracteres!",
-            "min" => "O campo [:attribute] possui tamanho mínimo de [:min] caracteres!",
-        ];
+        $this->authorize('update', $aluno);
 
-        $request->validate($rules, $msgs);
+        if (isset($aluno)) {
+            $aluno->nome = mb_strtoupper($request->nome, 'UTF-8');
+            $aluno->curso_id = $request->curso;
 
-        $curso = Curso::find($request->curso);
-        $obj_aluno = Aluno::find($id);
-
-        if (isset($curso) && isset($obj_aluno)) {
-
-            $obj_aluno->nome = mb_strtoupper($request->nome, 'UTF-8');
-            $obj_aluno->curso()->associate($curso);
-
-            $obj_aluno->save();
-
-
+            $aluno->save();
             return redirect()->route('alunos.index');
         }
+
+        return "<h1>Aluno não Encontrado!</h1>";
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param  \App\Models\Aluno  $aluno
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Aluno $aluno)
     {
-        //
+        $this->authorize('delete', $aluno);
+
+        if (isset($aluno)) {
+            $aluno->delete();
+            return redirect()->route('alunos.index');
+        }
     }
 }

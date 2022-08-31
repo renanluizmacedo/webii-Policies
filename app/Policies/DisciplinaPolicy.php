@@ -2,13 +2,12 @@
 
 namespace App\Policies;
 
-use App\Models\Aluno;
+use App\Models\Disciplina;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
-
 use App\Facades\UserPermissions;
 
-class AlunoPolicy
+class DisciplinaPolicy
 {
     use HandlesAuthorization;
 
@@ -20,20 +19,19 @@ class AlunoPolicy
      */
     public function viewAny(User $user)
     {
-        return UserPermissions::isAuthorized('alunos.index');
+        return UserPermissions::isAuthorized('disciplinas.index');
     }
 
     /**
      * Determine whether the user can view the model.
      *
      * @param  \App\Models\User  $user
-     * @param  \App\Models\Aluno  $aluno
+     * @param  \App\Models\Disciplina  $disciplina
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function view(User $user, Aluno $aluno)
+    public function view(User $user, Disciplina $disciplina)
     {
-
-        return UserPermissions::isAuthorized('alunos.show');
+        return UserPermissions::isAuthorized('disciplinas.show');
     }
 
     /**
@@ -44,41 +42,41 @@ class AlunoPolicy
      */
     public function create(User $user)
     {
-        return UserPermissions::isAuthorized('alunos.create');
+        return UserPermissions::isAuthorized('disciplinas.create');
     }
 
     /**
      * Determine whether the user can update the model.
      *
      * @param  \App\Models\User  $user
-     * @param  \App\Models\Aluno  $aluno
+     * @param  \App\Models\Disciplina  $disciplina
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function update(User $user, Aluno $aluno)
+    public function update(User $user, Disciplina $disciplina)
     {
-        return UserPermissions::isAuthorized('alunos.edit');
+        return UserPermissions::isAuthorized('disciplinas.edit');
     }
 
     /**
      * Determine whether the user can delete the model.
      *
      * @param  \App\Models\User  $user
-     * @param  \App\Models\Aluno  $aluno
+     * @param  \App\Models\Disciplina  $disciplina
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function delete(User $user, Aluno $aluno)
+    public function delete(User $user, Disciplina $disciplina)
     {
-        return UserPermissions::isAuthorized('alunos.destroy');
+        return UserPermissions::isAuthorized('disciplinas.destroy');
     }
 
     /**
      * Determine whether the user can restore the model.
      *
      * @param  \App\Models\User  $user
-     * @param  \App\Models\Aluno  $aluno
+     * @param  \App\Models\Disciplina  $disciplina
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function restore(User $user, Aluno $aluno)
+    public function restore(User $user, Disciplina $disciplina)
     {
         //
     }
@@ -87,10 +85,10 @@ class AlunoPolicy
      * Determine whether the user can permanently delete the model.
      *
      * @param  \App\Models\User  $user
-     * @param  \App\Models\Aluno  $aluno
+     * @param  \App\Models\Disciplina  $disciplina
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function forceDelete(User $user, Aluno $aluno)
+    public function forceDelete(User $user, Disciplina $disciplina)
     {
         //
     }

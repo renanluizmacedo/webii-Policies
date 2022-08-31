@@ -2,40 +2,49 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Disciplina;
 use App\Models\Curso;
-use App\Models\Docencia;
-use App\Facades\UserPermissions;
 
-use Illuminate\Support\Facades\Log;
+use Illuminate\Http\Request;
 
 class DisciplinaController extends Controller
 {
-
-
+    public function __construct()
+    {
+        $this->authorizeResource(Disciplina::class, 'disciplina');
+    }
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
     public function index()
     {
-        if(!UserPermissions::isAuthorized('disciplinas.index')) {
-            return response()->view('templates.restrito');
-        }
+        $this->authorize('viewAny',  Disciplina::class);
 
-        $data = Disciplina::with(['curso'])->get();
-
-        return view('disciplinas.index', compact(['data']));
+        $disciplinas = Disciplina::all();
+        return view('disciplinas.index', compact('disciplinas'));
     }
 
+    /**
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
     public function create()
     {
-
-        if(!UserPermissions::isAuthorized('disciplinas.create')) {
-            return response()->view('templates.restrito');
-        }
+        $this->authorize('create', Disciplina::class);
 
         $cursos = Curso::orderBy('nome')->get();
         return view('disciplinas.create', compact(['cursos']));
     }
 
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
     public function validation(Request $request)
     {
 
@@ -52,13 +61,14 @@ class DisciplinaController extends Controller
 
         $request->validate($rules, $msgs);
     }
-
     public function store(Request $request)
     {
-
         self::validation($request);
 
+        $this->authorize('create',  Disciplina::class);
+
         $curso = Curso::find($request->curso);
+
         if (isset($curso)) {
             $obj = new Disciplina();
             $obj->nome = mb_strtoupper($request->nome, 'UTF-8');
@@ -70,61 +80,81 @@ class DisciplinaController extends Controller
         }
     }
 
-    public function show($id)
+    /**
+     * Display the specified resource.
+     *
+     * @param  \App\Models\Disciplina  $disciplina
+     * @return \Illuminate\Http\Response
+     */
+    public function show(Disciplina $disciplina)
     {
-        if(!UserPermissions::isAuthorized('disciplinas.show')) {
-            return response()->view('templates.restrito');
-        }
-        $doc = Docencia::with(['professor'])
-            ->where('disciplina_id', '=', $id)->distinct()->get(['professor_id']);
+        
+        $this->authorize('view', $disciplina);
 
-        return view('disciplinas.show', compact(['doc']));
+        $curso = Curso::find($disciplina->curso->id);
+
+        if (isset($disciplina)) {
+            $disciplina->curso()->associate($curso); 
+
+            return view('disciplinas.show', compact('disciplina'));
+        }
+
+        return "<h1>Disciplina não Encontrado!</h1>";
     }
 
-    public function edit($id)
+    /**
+     * Show the form for editing the specified resource.
+     *
+     * @param  \App\Models\Disciplina  $disciplina
+     * @return \Illuminate\Http\Response
+     */
+    public function edit(Disciplina $disciplina)
     {
-        if(!UserPermissions::isAuthorized('disciplinas.edit')) {
-            return response()->view('templates.restrito');
+        $this->authorize('update', $disciplina);
+
+        $cursos = Curso::all();
+        if (isset($disciplina)) {
+            return view('disciplinas.edit', compact(['disciplina','cursos']));
         }
 
-        $cursos = Curso::orderBy('nome')->get();
-        $data = Disciplina::find($id);
-
-        if (isset($data)) {
-            return view('disciplinas.edit', compact(['data', 'cursos']));
-        }
+        return "<h1>Disciplina não Encontrada!</h1>";
     }
 
-    public function update(Request $request, $id)
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\Disciplina  $disciplina
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request, Disciplina $disciplina)
     {
-
         self::validation($request);
 
+        $this->authorize('update', $disciplina);
 
-        $curso = Curso::find($request->curso);
-        $obj = Disciplina::find($id);
-
-        if (isset($obj) && isset($curso)) {
-            $obj->nome = mb_strtoupper($request->nome, 'UTF-8');
-            $obj->carga = $request->carga;
-            $obj->curso()->associate($curso);
-
-            $obj->save();
-
+        if (isset($disciplina)) {
+            $disciplina->nome = mb_strtoupper($request->nome, 'UTF-8');
+            $disciplina->save();
             return redirect()->route('disciplinas.index');
         }
+
+        return "<h1>Disciplina não Encontrada!</h1>";
     }
 
-    public function destroy($id)
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  \App\Models\Disciplina  $disciplina
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy(Disciplina $disciplina)
     {
-        if(!UserPermissions::isAuthorized('disciplinas.destroy')) {
-            return response()->view('templates.restrito');
-        }
-        $obj = Disciplina::find($id);
+        $this->authorize('delete', $disciplina);
 
-        if (isset($obj)) {
-            $obj->delete();
+        if (isset($disciplina)) {
+            $disciplina->delete();
+            return redirect()->route('disciplinas.index');
         }
-        return redirect()->route('disciplinas.index');
     }
 }

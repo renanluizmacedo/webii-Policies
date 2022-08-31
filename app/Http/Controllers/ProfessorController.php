@@ -2,42 +2,50 @@
 
 namespace App\Http\Controllers;
 
-use App\Facades\UserPermissions;
-use Illuminate\Http\Request;
-use App\Models\Professor;
 use App\Models\Eixo;
-use App\Models\Docencia;
-
+use App\Models\Professor;
+use Illuminate\Http\Request;
 
 class ProfessorController extends Controller
 {
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
     public function __construct()
     {
         $this->authorizeResource(Professor::class, 'professor');
     }
     public function index()
     {
+        $this->authorize('viewAny',  Professor::class);
 
-        if(!UserPermissions::isAuthorized('professores.index')) {
-            return response()->view('templates.restrito');
-        }
+        $professores = Professor::all();
 
-        $professors = Professor::with(['eixo' => function ($q) {
-            $q->withTrashed();
-        }])->orderBy('nome')->get();
-
-        return view('professores.index', compact(['professors']));
+        return view('professores.index', compact(['professores']));
     }
 
+    /**
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
     public function create()
     {
-        if(!UserPermissions::isAuthorized('professores.create')) {
-            abort(403);
-        }
-        $eixos = Eixo::orderBy('nome')->get();
+        $this->authorize('create',  Professor::class);
+
+        $eixos = Eixo::all();
+
         return view('professores.create', compact(['eixos']));
     }
 
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
     public function validation(Request $request)
     {
 
@@ -59,11 +67,11 @@ class ProfessorController extends Controller
 
         $request->validate($rules, $msgs);
     }
-
     public function store(Request $request)
     {
+        $this->authorize('create',  Professor::class);
 
-        Self::validation($request);
+        self::validation($request);
 
         $eixo = Eixo::find($request->eixo);
 
@@ -82,69 +90,65 @@ class ProfessorController extends Controller
         }
     }
 
-    public function show($id)
+    /**
+     * Display the specified resource.
+     *
+     * @param  \App\Models\Professor  $professor
+     * @return \Illuminate\Http\Response
+     */
+    public function show(Professor $professor)
     {
-        if(!UserPermissions::isAuthorized('professores.show')) {
-            return response()->view('templates.restrito');
+        $this->authorize('view', $professor);
+
+        $eixo = Eixo::find($professor->eixo->id);
+
+        if (isset($professor)) {
+            $professor->eixo()->associate($eixo);
+
+            return view('professores.show', compact('professor'));
         }
 
-        $doc = Docencia::with(['professor', 'disciplina'])->get();
-
-        return view('professores.show', compact(['doc']));
+        return "<h1>Professor não Encontrado!</h1>";
     }
 
-    public function edit($id)
+    /**
+     * Show the form for editing the specified resource.
+     *
+     * @param  \App\Models\Professor  $professor
+     * @return \Illuminate\Http\Response
+     */
+    public function edit(Professor $professor)
     {
+        $this->authorize('update', $professor);
 
-        $eixos = Eixo::orderBy('nome')->get();
-        $data = Professor::with(['eixo' => function ($q) {
-            $q->withTrashed();
-        }])->find($id);
+        return view('professores.edit');
 
-        if (isset($data)) {
-            return view('professores.edit', compact(['data', 'eixos']));
-        }
     }
 
-    public function update(Request $request, $id)
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\Professor  $professor
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request, Professor $professor)
     {
+        $this->authorize('update', $professor);
 
+        self::validation($request);
 
-        $rules = [
-            'nome' => 'required|max:100|min:10',
-            'email' => 'required|max:250|min:15|',
-            'siape' => 'required|max:10|min:8',
-            'eixo' => 'required',
-            'radio' => 'required',
-
-        ];
-        $msgs = [
-            "required" => "O preenchimento do campo [:attribute] é obrigatório!",
-            "max" => "O campo [:attribute] possui tamanho máximo de [:max] caracteres!",
-            "min" => "O campo [:attribute] possui tamanho mínimo de [:min] caracteres!",
-        ];
-
-        $request->validate($rules, $msgs);
-
-        $eixo = Eixo::find($request->eixo);
-        $obj_prof = Professor::find($id);
-
-        if (isset($eixo) && isset($obj_prof)) {
-
-            $obj_prof->nome = mb_strtoupper($request->nome, 'UTF-8');
-            $obj_prof->email = mb_strtolower($request->email, 'UTF-8');
-            $obj_prof->siape = $request->siape;
-            $obj_prof->ativo = $request->radio;
-            $obj_prof->eixo()->associate($eixo);
-
-            $obj_prof->save();
-
-
-            return redirect()->route('professores.index');
-        }
+        //
     }
 
-    public function destroy($id)
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  \App\Models\Professor  $professor
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy(Professor $professor)
     {
+        $this->authorize('delete', $professor);
     }
 }

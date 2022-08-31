@@ -17,20 +17,36 @@ class CursoController extends Controller
     {
 
         $this->authorize('viewAny',  Curso::class);
-        
+
         $cursos = Curso::all();
         return view('cursos.index', compact('cursos'));
     }
+    public function validation(Request $request)
+    {
 
+        $rules = [
+            'nome' => 'required|max:100|min:10',
+        ];
+        $msgs = [
+            "required" => "O preenchimento do campo [:attribute] é obrigatório!",
+            "max" => "O campo [:attribute] possui tamanho máximo de [:max] caracteres!",
+            "min" => "O campo [:attribute] possui tamanho mínimo de [:min] caracteres!",
+        ];
+
+        $request->validate($rules, $msgs);
+    }
     public function create()
     {
 
         $this->authorize('create',  Curso::class);
+
         return view('cursos.create');
     }
 
     public function store(Request $request)
     {
+        Self::validation($request);
+
         $this->authorize('create',  Curso::class);
 
         $obj = new Curso();
@@ -66,6 +82,8 @@ class CursoController extends Controller
 
     public function update(Request $request, Curso $curso)
     {
+        Self::validation($request);
+
         $this->authorize('update', $curso);
 
         if (isset($curso)) {
@@ -79,7 +97,6 @@ class CursoController extends Controller
 
     public function destroy(Curso $curso)
     {
-
         $this->authorize('delete', $curso);
 
         if (isset($curso)) {

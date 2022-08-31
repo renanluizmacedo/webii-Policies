@@ -31,6 +31,7 @@ class ProfessorPolicy
      */
     public function view(User $user, Professor $professor)
     {
+
         return UserPermissions::isAuthorized('professores.show');
 
     }
@@ -43,6 +44,7 @@ class ProfessorPolicy
      */
     public function create(User $user)
     {
+
         return UserPermissions::isAuthorized('professores.create');
 
     }
@@ -56,6 +58,7 @@ class ProfessorPolicy
      */
     public function update(User $user, Professor $professor)
     {
+
         return UserPermissions::isAuthorized('professores.edit');
 
     }

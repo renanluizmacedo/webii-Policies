@@ -2,13 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use App\Facades\UserPermissions;
-
-use Illuminate\Http\Request;
 use App\Models\Eixo;
+use Illuminate\Http\Request;
 
 class EixoController extends Controller
 {
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
     public function __construct()
     {
         $this->authorizeResource(Eixo::class, 'eixo');
@@ -17,27 +20,14 @@ class EixoController extends Controller
     {
         $this->authorize('viewAny',  Eixo::class);
 
-        if(!UserPermissions::isAuthorized('eixos.index')) {
-            return response()->view('templates.restrito');
-        }
-
-        $eixos = Eixo::orderBy('nome')->get();
-        
-        return view('eixos.index', compact(['eixos']));
+        $eixos = Eixo::all();
+        return view('eixos.index', compact('eixos'));
     }
-
-    public function create()
-    {
-        if(!UserPermissions::isAuthorized('eixos.create')) {
-            return response()->view('templates.restrito');
-        }
-        return view('eixos.create');
-    }
-
     public function validation(Request $request)
     {
+
         $rules = [
-            'nome' => 'required|max:50|min:10',
+            'nome' => 'required|max:100|min:10',
         ];
         $msgs = [
             "required" => "O preenchimento do campo [:attribute] é obrigatório!",
@@ -47,62 +37,108 @@ class EixoController extends Controller
 
         $request->validate($rules, $msgs);
     }
+    /**
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function create()
+    {
+        $this->authorize('create',  Eixo::class);
 
+        return view('eixos.create');
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
     public function store(Request $request)
     {
-        if (!UserPermissions::isAuthorized('cursos.index')) {
-            abort(403);
-        }
-
         self::validation($request);
 
-        Eixo::create(['nome' =>  mb_strtoupper($request->nome, 'UTF-8')]);
+        $this->authorize('create',  Eixo::class);
+
+        $obj = new Eixo();
+        $obj->nome = mb_strtoupper($request->nome, 'UTF-8');
+        $obj->save();
 
         return redirect()->route('eixos.index');
     }
 
-    public function show($id)
+    /**
+     * Display the specified resource.
+     *
+     * @param  \App\Models\Eixo  $eixo
+     * @return \Illuminate\Http\Response
+     */
+    public function show(Eixo $eixo)
     {
+        $this->authorize('view', $eixo);
+
+        if (isset($eixo)) {
+            return view('eixos.show', compact('eixo'));
+        }
+
+        return "<h1>Eixo não Encontrado!</h1>";
     }
 
-    public function edit($id)
+    /**
+     * Show the form for editing the specified resource.
+     *
+     * @param  \App\Models\Eixo  $eixo
+     * @return \Illuminate\Http\Response
+     */
+    public function edit(Eixo $eixo)
     {
-        if(!UserPermissions::isAuthorized('eixos.edit')) {
-            return response()->view('templates.restrito');
-        }
-        $data = Eixo::find($id);
+        $this->authorize('update', $eixo);
 
-        if (isset($data)) {
-            return view('eixos.edit', compact(['data']));
+        if (isset($eixo)) {
+            return view('eixos.edit', compact('eixo'));
         }
+
+        return "<h1>Eixo não Encontrado!</h1>";
     }
 
-    public function update(Request $request, $id)
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\Eixo  $eixo
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request, Eixo $eixo)
     {
-
         self::validation($request);
 
-        $obj = Eixo::find($id);
-        if (isset($obj)) {
-            $obj->nome = mb_strtoupper($request->nome, 'UTF-8');
-            $obj->save();
+        $this->authorize('update', $eixo);
+
+        if (isset($eixo)) {
+            $eixo->nome = mb_strtoupper($request->nome, 'UTF-8');
+            $eixo->save();
+            return redirect()->route('eixos.index');
         }
 
-        return redirect()->route('eixos.index');
+        return "<h1>Eixo não Encontrado!</h1>";
     }
 
-    public function destroy($id)
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  \App\Models\Eixo  $eixo
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy(Eixo $eixo)
     {
-        if(!UserPermissions::isAuthorized('eixos.destroy')) {
-            return response()->view('templates.restrito');
+        $this->authorize('delete', $eixo);
+
+        if (isset($eixo)) {
+            $eixo->delete();
+            return redirect()->route('eixos.index');
         }
 
-        $obj = Eixo::find($id);
-
-        if (isset($obj)) {
-            $obj->delete();
-        }
-
-        return redirect()->route('eixos.index');
+        return "<h1>Eixo não Encontrado!</h1>";
     }
 }

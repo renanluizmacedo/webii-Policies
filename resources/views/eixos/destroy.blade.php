@@ -1,5 +1,5 @@
 <!-- Herda o layout padrão definido no template "main" -->
-@extends('templates.middleware', ['titulo' => "Remover Curso"])
+@extends('templates.middleware', ['titulo' => "Remover Eixo"])
 <!-- Preenche o conteúdo da seção "titulo" -->
 @section('titulo') EIXOS @endsection
 <!-- Preenche o conteúdo da seção "conteudo" -->
@@ -15,7 +15,7 @@
 <div class="row mt-3">
     <div class="col d-flex justify-content-center">
         <div class="alert alert-success">
-            <b>cursos.destroy </b> / Permitida
+            <b>eixos.destroy </b> / Permitida
         </div>
     </div>
 </div>

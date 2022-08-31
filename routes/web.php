@@ -28,8 +28,6 @@ Route::resource('/eixos', '\App\Http\Controllers\EixoController')->middleware(['
 Route::resource('/disciplinas', '\App\Http\Controllers\DisciplinaController')->middleware(['auth']);
 Route::resource('/professores', '\App\Http\Controllers\ProfessorController')->middleware(['auth']);
 Route::resource('/alunos', '\App\Http\Controllers\AlunoController')->middleware(['auth']);
-Route::resource('/matriculas', '\App\Http\Controllers\MatriculaController')->middleware(['auth']);
-Route::resource('/docencias', '\App\Http\Controllers\DocenciaController')->middleware(['auth']);
 
 
 

@@ -1,13 +1,13 @@
 <!-- Herda o layout padrão definido no template "main" -->
 @extends('templates.middleware', ['titulo' => "PROFESSORES", 'rota' => "professores.create"])
 <!-- Preenche o conteúdo da seção "titulo" -->
-@section('titulo') professors @endsection
+@section('titulo') e @endsection
 <!-- Preenche o conteúdo da seção "conteudo" -->
 @section('conteudo')
 <div class="row">
     <div class="col">
         <table class="table align-middle caption-top table-striped">
-            <caption>Tabela de <b>professors</b></caption>
+            <caption>Tabela de <b>professores</b></caption>
             <thead>
                 <tr>
                     <th scope="col">Nome</th>
@@ -19,7 +19,7 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach ($professors as $item)
+                @foreach ($professores as $item)
                 <tr>
                     <td>{{ $item->nome }}</td>
                     <td>{{ $item->email }}</td>
